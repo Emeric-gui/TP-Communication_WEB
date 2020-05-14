@@ -1,8 +1,11 @@
-function print(date){
-    date = '<span class="material-icons">watch_later</span> <strong>'+ date + '</strong>'
-document.getElementById('timestamp').innerHTML = date;
-
-setTimeout(ajaxRequest('GET','php/timestamp.php', print), 1000);
+function dom(reponse){
+    let title = document.getElementById('title');
+    let detail = document.getElementById('detail');
+    title.innerHTML = reponse[0];
+    // console.log(reponse[1]);
+    detail.innerHTML = " <strong><span style='color:blue'>*** Détail ***</span></strong> <br> hours : "+reponse[1]['hours'] + " <br> Minutes : "+reponse[1]['minutes'] + " <br> Seconds : "+reponse[1]['seconds'];
+    displayClock(reponse[1]);
+    setTimeout(ajaxRequest('GET', 'php/time.php', dom, error), 1000);
 }
 
 
@@ -35,9 +38,7 @@ function error(text){
     }
 }
 
-
-
-function ajaxRequest(type, url, callback){
+function ajaxRequest(type, url, callback, callback1){
     let xhr = new XMLHttpRequest();
     xhr.open(type, url);
 
@@ -45,17 +46,19 @@ function ajaxRequest(type, url, callback){
         switch (xhr.status){
             case 200:
             case 201: 
-            console.log(xhr.responseText);
-                callback(xhr.responseText);
+            // console.log(xhr.responseText);
+            var json = xhr.responseText;
+            var data = JSON.parse(json);
+            // console.log(data);
+                callback(data);
             break;
-            default:  callback(xhr.status);
+            default:  
+            console.log("HTTP error");
+            callback1(xhr.status);
         }
     };
 
     xhr.send();
 }
 
-
-ajaxRequest('GET', 'php/timestamp.php', print);
-// ajaxRequest('GET', 'php/errors.php', error);
-// ajaxRequest('GET', 'php/timestampp.php', error);
+ajaxRequest('GET', 'php/time.php', dom, error);
